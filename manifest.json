@@ -1,0 +1,33 @@
+{
+
+  "manifest_version": 2,
+  "name": "Timeismoney",
+  "version": "0.1",
+
+  "description":
+      "Lets you track how much money you spend on certain websites.",
+  "homepage_url": "https://github.com/kkleindev",
+  "icons": {
+    "48": "icons/ic_attach_money_black_48dp_1x.png"
+  },
+
+  "permissions": [
+    "storage",
+    "tabs",
+    "activeTab"
+  ],
+
+  "background": {
+    "scripts": ["background-script.js"]
+  },
+
+  "browser_action": {
+    "default_icon": "icons/ic_attach_money_black_48dp_1x.png",
+    "default_title": "Timeismoney",
+    "default_popup": "popup/popup.html"
+  },
+
+  "options_ui": {
+    "page": "options.html"
+  }
+}
