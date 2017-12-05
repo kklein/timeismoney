@@ -8,9 +8,14 @@ function listenForClicks() {
     function updateTime(storage) {
       const button = document.getElementById("popup-btn");
       if (button) {
+        // TODO(kkleindev): Isolate/modularize time conversion.
         const wastedSeconds = Math.round(storage.timeCount / 60000 * 60);
         const wastedMoney =  wastedSeconds * storage.wage / 3600
         button.textContent = wastedMoney.toFixed(2).toString();
+        // TODO(kkleindev): This actually removes the the properties to be
+        // associated with the button, i.e. pointer cursor and background
+        // change. This is counterintuitive and hacky.
+        button.setAttribute("class", "button");
       }
     }
 

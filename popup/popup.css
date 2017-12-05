@@ -7,10 +7,10 @@ html, body {
   padding: 4px;
   text-align: center;
   font-size: 1.5em;
-  cursor: pointer;
 }
 
 .money:hover {
+  cursor: pointer;
   background-color: #CFF2F2;
 }
 
