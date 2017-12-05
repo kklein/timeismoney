@@ -6,17 +6,15 @@ function saveOptions(e) {
   });
 }
 
-function restoreOptions() {
-
-  function setCurrentChoice(state) {
-    document.querySelector("#wage").value = state.wage || "10";
-    document.querySelector("#websites").value =
-        state.websites || "www.facebook.com";
+function loadOptions() {
+  function setOptions(state) {
+    document.querySelector("#wage").value = state.wage;
+    document.querySelector("#websites").value = state.websites
   }
 
-  const getting = browser.storage.local.get();
-  getting.then(setCurrentChoice);
+  const storagePromise = browser.storage.local.get();
+  storagePromise.then(setOptions);
 }
 
-document.addEventListener("DOMContentLoaded", restoreOptions);
+document.addEventListener("DOMContentLoaded", loadOptions);
 document.querySelector("form").addEventListener("submit", saveOptions);
