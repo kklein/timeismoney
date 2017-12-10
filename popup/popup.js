@@ -1,42 +1,22 @@
-/**
- * Listen for clicks on the buttons, and send the appropriate message to
- * the content script in the page.
- */
-function listenForClicks() {
-  document.addEventListener("click", (e) => {
-
-    function updateTime(storage) {
-      const button = document.getElementById("popup-btn");
-      if (!button) {
-        return;
-      }
-      // If current website is desirable, timeCount already stores the
-      // sought-after value. If not, we need to add the difference between now
-      // and start time.
-      let wastedSeconds = 0;
-      if (!storage.currentIsDesirable){
-        const date = new Date();
-        wastedSeconds += date.getTime() - storage.startTime;
-      }
-      wastedSeconds += storage.timeCount;
-      // TODO(kkleindev): Isolate/modularize time conversion.
-      wastedSeconds = Math.round(wastedSeconds / 60000 * 60);
-      const wastedMoney =  wastedSeconds * storage.wage / 3600
-      button.textContent = wastedMoney.toFixed(2).toString();
-      // TODO(kkleindev): This actually removes the the properties to be
-      // associated with the button, i.e. pointer cursor and background
-      // change. This is counterintuitive and hacky.
-      button.setAttribute("class", "button");
-    }
-
-    const storagePromise = browser.storage.local.get();
-    storagePromise.then(updateTime);
-  });
+function displaySum(storage) {
+  const button = document.getElementById("popup-btn");
+  if (!button) {
+    return;
+  }
+  // If current website is desirable, timeCount already stores the
+  // sought-after value. If not, we need to add the difference between now
+  // and start time.
+  let wastedSeconds = 0;
+  if (!storage.currentIsDesirable){
+    const date = new Date();
+    wastedSeconds += date.getTime() - storage.startTime;
+  }
+  wastedSeconds += storage.timeCount;
+  // TODO(kkleindev): Isolate/modularize time conversion.
+  wastedSeconds = Math.round(wastedSeconds / 60000 * 60);
+  const wastedMoney =  wastedSeconds * storage.wage / 3600
+  button.textContent = wastedMoney.toFixed(2).toString();
 }
 
-/**
- * When the popup loads, inject a content script into the active tab,
- * and add a click handler.
- * If we couldn't inject the script, handle the error.
- */
-browser.tabs.executeScript({file: "/content-script.js"}).then(listenForClicks);
+const storagePromise = browser.storage.local.get();
+storagePromise.then(displaySum);
