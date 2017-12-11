@@ -13,7 +13,7 @@ This plugin is in development and has only been tested for Firefox 57.
 
 1. Install the extension.
   - Firefox: Go to https://addons.mozilla.org/en-US/firefox/ and submit the addon. Download the signed xpi file. Go to about:addons and select the xpi file.
-  - Chrome: Go to chrome://extensions and load project folder under 'load unpacked extensions'.
+  - Chrome: Go to chrome://extensions and load project folder under 'load unpacked extensions'. Make sure to tick the 'Developer Mode' box in the top right-hand corner
 2. Navigate to extension options.
   - Adjust hourly wage. E.g. '13'.
   - Add all websites to be considered undesirable, space-separated. E.g. 'www.facebook.com www.reddit.com'.
