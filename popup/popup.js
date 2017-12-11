@@ -1,4 +1,4 @@
-function displaySum(storage) {
+function displaySum(storageData) {
   const button = document.getElementById("popup-btn");
   if (!button) {
     return;
@@ -7,16 +7,15 @@ function displaySum(storage) {
   // sought-after value. If not, we need to add the difference between now
   // and start time.
   let wastedSeconds = 0;
-  if (!storage.currentIsDesirable){
+  if (!storageData.currentIsDesirable){
     const date = new Date();
-    wastedSeconds += date.getTime() - storage.startTime;
+    wastedSeconds += date.getTime() - storageData.startTime;
   }
-  wastedSeconds += storage.timeCount;
+  wastedSeconds += storageData.timeCount;
   // TODO(kkleindev): Isolate/modularize time conversion.
   wastedSeconds = Math.round(wastedSeconds / 60000 * 60);
-  const wastedMoney =  wastedSeconds * storage.wage / 3600
+  const wastedMoney =  wastedSeconds * storageData.wage / 3600
   button.textContent = wastedMoney.toFixed(2).toString();
 }
 
-const storagePromise = browser.storage.local.get();
-storagePromise.then(displaySum);
+chrome.storage.local.get(displaySum);

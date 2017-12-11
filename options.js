@@ -1,19 +1,18 @@
 function saveOptions(e) {
   e.preventDefault();
-  browser.storage.local.set({
+  chrome.storage.local.set({
     wage: document.querySelector("#wage").value,
     websites: document.querySelector("#websites").value,
   });
 }
 
 function loadOptions() {
-  function setOptions(state) {
-    document.querySelector("#wage").value = state.wage;
-    document.querySelector("#websites").value = state.websites
+  function setOptions(storageData) {
+    document.querySelector("#wage").value = storageData.wage;
+    document.querySelector("#websites").value = storageData.websites
   }
 
-  const storagePromise = browser.storage.local.get();
-  storagePromise.then(setOptions);
+  chrome.storage.local.get(setOptions);
 }
 
 document.addEventListener("DOMContentLoaded", loadOptions);
