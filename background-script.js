@@ -1,7 +1,7 @@
 function initializeState(values) {
   browser.storage.local.set({
     currentIsDesirable: true,
-    timeCount: 0,
+    timeCount: values.timeCount ? values.timeCount : 0,
     // TODO(kkleindev): nicer constant declaration.
     wage: values.wage ? values.wage : 10,
     // TODO(kkleindev): nicer constant declaration.
