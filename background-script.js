@@ -30,6 +30,18 @@ function updateState(tabData, storageData) {
   }
 }
 
+function finalizeState(storageData) {
+  const date = new Date();
+  if (!storageData.currentIsDesirable) {
+    const timeCount = storageData.timeCount;
+    const startTime = storageData.startTime;
+    const newTimeCount = timeCount + date.getTime() - startTime;
+    chrome.storage.local.set(
+        {currentIsDesirable: true, timeCount: newTimeCount});
+    console.log('stopped counting.');
+  }
+}
+
 function tabListener() {
   const updateWithTab = (tabData) => {
     const updateWithStorage = (storageData) => {
@@ -40,6 +52,11 @@ function tabListener() {
   chrome.tabs.query({currentWindow: true, active: true}, updateWithTab);
 }
 
+function windowListener() {
+  chrome.storage.local.get(finalizeState);
+}
+
 chrome.storage.local.get(initializeState);
 chrome.tabs.onActivated.addListener(tabListener);
 chrome.tabs.onUpdated.addListener(tabListener);
+chrome.windows.onRemoved.addListener(windowListener)
