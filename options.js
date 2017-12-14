@@ -4,12 +4,14 @@ function saveOptions(e) {
     wage: document.querySelector("#wage").value,
     websites: document.querySelector("#websites").value,
   });
+  // Make options tab close after preference has been stored.
+  chrome.tabs.getCurrent((tab) => chrome.tabs.remove(tab.id));
 }
 
 function loadOptions() {
   function setOptions(storageData) {
     document.querySelector("#wage").value = storageData.wage;
-    document.querySelector("#websites").value = storageData.websites
+    document.querySelector("#websites").value = storageData.websites;
   }
 
   chrome.storage.local.get(setOptions);
