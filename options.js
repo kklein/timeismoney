@@ -2,7 +2,8 @@ function saveOptions(e) {
   e.preventDefault();
   chrome.storage.local.set({
     wage: document.querySelector("#wage").value,
-    websites: document.querySelector("#websites").value,
+    websites: document.querySelector("#websites-text").value
+        .replace(/\n+/g, " ").replace(/\ +/g, " ").trim().split(" "),
   });
   // Make options tab close after preference has been stored.
   chrome.tabs.getCurrent((tab) => chrome.tabs.remove(tab.id));
@@ -11,9 +12,9 @@ function saveOptions(e) {
 function loadOptions() {
   function setOptions(storageData) {
     document.querySelector("#wage").value = storageData.wage;
-    document.querySelector("#websites").value = storageData.websites;
+    document.querySelector("#websites-text").value =
+        storageData.websites.reduce((a, b) => a + "\n" + b);
   }
-
   chrome.storage.local.get(setOptions);
 }
 

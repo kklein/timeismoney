@@ -3,18 +3,32 @@
 <html>
   <head>
     <meta charset="utf-8">
+    <link rel="stylesheet" href="options.css"/>
   </head>
 
   <body>
-
-    <form>
-        <label>Wage<input type="number" step="0.01" min= "0" id="wage" ></label>
-        <label>Websites<input type="text" id="websites" ></label>
-        <button type="submit">Save</button>
-    </form>
+    <div class = "grid-container">
+      <div class="grid-item">
+        <label>Hourly wage:</label>
+      </div>
+      <div class="grid-item">
+        <input type="number" step="0.01" min= "0" id="wage">
+      </div>
+      <div class="grid-item">
+        <label>Websites:</label>
+      </div>
+      <div class="grid-item">
+        <textarea id="websites-text" rows="4" cols="50"></textarea>
+      </div>
+      <div class="grid-item">
+      </div>
+      <div class="grid-item">
+        <form>
+          <button type="submit">Save</button>
+        </form>
+      </div>
+    </div>
 
     <script src="options.js"></script>
-
   </body>
-
 </html>

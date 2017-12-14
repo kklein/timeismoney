@@ -12,7 +12,7 @@ function initializeState(storageData) {
 function updateState(tabData, storageData) {
   function isDesirable(url, websites) {
     const isWebsiteInUrl = (element) => url.includes(element);
-    return !(websites.split(" ").some(isWebsiteInUrl));
+    return !(websites.some(isWebsiteInUrl));
   }
   const url = tabData[0].url;
   const currentIsDesirable = storageData.currentIsDesirable;
