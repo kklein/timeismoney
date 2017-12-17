@@ -1,5 +1,4 @@
 {
-
   "manifest_version": 2,
   "name": "Timeismoney",
   "version": "0.1",
@@ -28,6 +27,6 @@
   },
 
   "options_ui": {
-    "page": "options.html"
+    "page": "options/options.html"
   }
 }
