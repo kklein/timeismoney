@@ -11,9 +11,10 @@
   },
 
   "permissions": [
+    "activeTab",
+    "idle",
     "storage",
-    "tabs",
-    "activeTab"
+    "tabs"
   ],
 
   "background": {
