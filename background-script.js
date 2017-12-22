@@ -1,6 +1,7 @@
 // Important note: Time spent is currently attributed to the week in which the
 // presence on a website ends, i.e. independent of in which week the activity
 // started.
+const IDLE_TIMEOUT = 20;
 
 function getWeekId(date) {
     const dateCopy = new Date(date.valueOf());
@@ -99,5 +100,5 @@ chrome.storage.local.get(initializeState);
 chrome.tabs.onActivated.addListener(tabChangeListener);
 chrome.tabs.onUpdated.addListener(tabChangeListener);
 chrome.windows.onRemoved.addListener(windowRemovalListener);
-chrome.idle.setDetectionInterval(15);
+chrome.idle.setDetectionInterval(IDLE_TIMEOUT);
 chrome.idle.onStateChanged.addListener(idleListener);

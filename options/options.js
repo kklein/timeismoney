@@ -5,8 +5,10 @@ function saveOptions(e) {
     websites: document.querySelector("#websites-text").value
         .replace(/\n+/g, " ").replace(/\ +/g, " ").trim().split(" "),
   });
-  // Make options tab close after preference has been stored.
+  // Firefox: Make options tab close after preference has been stored.
   chrome.tabs.getCurrent((tab) => chrome.tabs.remove(tab.id));
+  // Chrome: Make options window close.
+  window.close();
 }
 
 function loadOptions() {
