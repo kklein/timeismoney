@@ -17,6 +17,14 @@
     "tabs"
   ],
 
+  "content_scripts": [
+    {
+      "matches": ["*://*/*"],
+      "css": ["content/content.css"],
+      "js": ["content/content.js"]
+    }
+  ],
+
   "background": {
     "scripts": ["background-script.js"]
   },
