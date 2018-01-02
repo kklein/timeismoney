@@ -33,19 +33,30 @@ function updateDisplay(storageData) {
   span.innerHTML = wastedMoney.toFixed(2).toString() + '$';
 
   const existingCounter = document.getElementById('tim_counter');
-  if (existingCounter) {
-    while (existingCounter.firstChild) {
-      existingCounter.removeChild(existingCounter.firstChild);
+  if (storageData.display) {
+    if (existingCounter) {
+      while (existingCounter.firstChild) {
+        existingCounter.removeChild(existingCounter.firstChild);
+      }
+      existingCounter.appendChild(span);
+    } else {
+      const elem = document.createElement('div');
+      elem.setAttribute('id', 'tim_counter');
+      elem.appendChild(span);
+      document.body.appendChild(elem);
     }
-    existingCounter.appendChild(span);
   } else {
-    const elem = document.createElement('div');
-    elem.setAttribute('id', 'tim_counter');
-    elem.appendChild(span);
-    document.body.appendChild(elem);
+    if (existingCounter) {
+      existingCounter.parentElement.removeChild(existingCounter);
+    }
   }
 }
 
 chrome.storage.local.get(updateDisplay);
+
+chrome.runtime.onMessage.addListener(message => {
+  chrome.storage.local.get(updateDisplay);
+});
+
 const intervalID =
     setInterval(() => chrome.storage.local.get(updateDisplay), 10000);

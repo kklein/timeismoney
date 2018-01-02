@@ -28,6 +28,7 @@ function initializeState(storageData) {
   defaultTimeCount[weekId] = 0;
   chrome.storage.local.set({
     currentIsDesirable: true,
+    display: true,
     timeCount:
         storageData.timeCount ? storageData.timeCount : defaultTimeCount,
     // TODO(kkleindev): nicer constant declaration.
