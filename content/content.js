@@ -1,20 +1,4 @@
-function getWeekId(date) {
-    const dateCopy = new Date(date.valueOf());
-    // ISO weeks start on Mondays.
-    const dayNumber = (date.getDay() + 6) % 7;
-    // Set the target to the Thursday of this week so the
-    // target date is in the right year.
-    dateCopy.setDate(dateCopy.getDate() - dayNumber + 3);
-    // ISO 8601: Week 1 iff January 4th in it.
-    const dateJan4 = new Date(dateCopy.getFullYear(), 0, 4);
-    // Number of days between target date and january 4th
-    const dayDiff = (dateCopy - dateJan4) / 86400000;
-    // Calculate week number: Week 1 (january 4th) plus the
-    // number of weeks between target date and january 4th
-    const weekId = dateCopy.getFullYear().toString() +
-        (1 + Math.ceil(dayDiff / 7)).toString();
-    return parseInt(weekId);
-}
+const INTERVAL_DURATION = 10000;
 
 function updateDisplay(storageData) {
   let wastedSeconds = 0;
@@ -22,12 +6,24 @@ function updateDisplay(storageData) {
   if (!storageData.currentIsDesirable){
     wastedSeconds += date.getTime() - storageData.startTime;
   }
-  const weekId = getWeekId(date);
+  const weekId = Utils.getWeekId(date);
   const timeCount = storageData.timeCount;
   wastedSeconds += timeCount[weekId] ? timeCount[weekId] : 0;
-  // TODO(kkleindev): Isolate/modularize time conversion.
-  wastedSeconds = Math.round(wastedSeconds / 60000 * 60);
-  const wastedMoney =  wastedSeconds * storageData.wage / 3600;
+
+  const wastedMoney =
+      Utils.getMonetaryValue(wastedSeconds, storageData.wage);
+
+  // TODO(kkleindev): Make this spinning loop read-only. This is a fix
+  // intended for temporary use. It makes up for the malfunction
+  // of window closing event listeners.
+  if (!storageData.currentIsDesirable) {
+    const newTimeCount = Object.assign({}, storageData.timeCount);
+    newTimeCount[weekId] = wastedSeconds;
+    chrome.storage.local.set({
+      startTime: date.getTime(),
+      timeCount: newTimeCount
+    });
+  }
 
   const span = document.createElement('span');
   span.innerHTML = wastedMoney.toFixed(2).toString() + '$';
@@ -59,4 +55,5 @@ chrome.runtime.onMessage.addListener(message => {
 });
 
 const intervalID =
-    setInterval(() => chrome.storage.local.get(updateDisplay), 10000);
+    setInterval(() => chrome.storage.local.get(updateDisplay),
+    INTERVAL_DURATION);

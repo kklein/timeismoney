@@ -1,7 +1,12 @@
 // Important note: Time spent is currently attributed to the week in which the
 // presence on a website ends, i.e. independent of in which week the activity
 // started.
-const IDLE_TIMEOUT = 20;
+
+// Idle timetout in seconds.
+const IDLE_TIMEOUT = 120;
+const DEFAULT_WAGE = 10;
+const DEFAULT_WEBSITES = ["www.facebook.com"];
+
 
 function getWeekId(date) {
     const dateCopy = new Date(date.valueOf());
@@ -23,7 +28,7 @@ function getWeekId(date) {
 
 function initializeState(storageData) {
   const date = new Date();
-  const weekId = getWeekId(date);
+  const weekId = Utils.getWeekId(date);
   const defaultTimeCount = {};
   defaultTimeCount[weekId] = 0;
   chrome.storage.local.set({
@@ -31,24 +36,22 @@ function initializeState(storageData) {
     display: true,
     timeCount:
         storageData.timeCount ? storageData.timeCount : defaultTimeCount,
-    // TODO(kkleindev): nicer constant declaration.
-    wage: storageData.wage ? storageData.wage : 10,
-    // TODO(kkleindev): nicer constant declaration.
+    wage: storageData.wage ? storageData.wage : DEFAULT_WAGE,
     websites: storageData.websites ?
         storageData.websites : ["www.facebook.com"]
   });
 }
 
 function setState(urlIsDesirable, storageData) {
-  const currentIsDesirable = storageData.currentIsDesirable;
+  const soFarIsDesirable = storageData.currentIsDesirable;
   const timeCount = storageData.timeCount;
   const startTime = storageData.startTime;
   const date = new Date();
-  if (currentIsDesirable && !urlIsDesirable) {
+  if (soFarIsDesirable && !urlIsDesirable) {
     chrome.storage.local.set(
         {currentIsDesirable: false, startTime: date.getTime()});
-  } else if (!currentIsDesirable && urlIsDesirable) {
-    const weekId = getWeekId(date);
+  } else if (!soFarIsDesirable && urlIsDesirable) {
+    const weekId = Utils.getWeekId(date);
     const newTimeCount = timeCount;
     if (!newTimeCount[weekId]) {
       newTimeCount[weekId] = 0;
@@ -100,6 +103,9 @@ function idleListener(idleState) {
 chrome.storage.local.get(initializeState);
 chrome.tabs.onActivated.addListener(tabChangeListener);
 chrome.tabs.onUpdated.addListener(tabChangeListener);
-chrome.windows.onRemoved.addListener(windowRemovalListener);
+// In order for this callback to be executed with a single window remaining,
+// the background permission has to be granted. This is currently not supported
+// by firefox.
+//chrome.windows.onRemoved.addListener(windowRemovalListener);
 chrome.idle.setDetectionInterval(IDLE_TIMEOUT);
 chrome.idle.onStateChanged.addListener(idleListener);
