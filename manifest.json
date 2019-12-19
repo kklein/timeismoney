@@ -21,12 +21,12 @@
     {
       "matches": ["*://*/*"],
       "css": ["content/content.css"],
-      "js": ["content/content.js"]
+      "js": ["utils.js", "content/content.js"]
     }
   ],
 
   "background": {
-    "scripts": ["background-script.js"]
+    "scripts": ["utils.js", "background-script.js"]
   },
 
   "browser_action": {

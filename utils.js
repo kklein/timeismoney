@@ -1,7 +1,7 @@
 var Utils = (function () {
 
   return {
-
+    // Map date to ISO weeknumber.
     getWeekId: function(date) {
         const dateCopy = new Date(date.valueOf());
         // ISO weeks start on Mondays.

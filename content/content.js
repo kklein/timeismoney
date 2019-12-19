@@ -29,7 +29,7 @@ function updateDisplay(storageData) {
   span.innerHTML = wastedMoney.toFixed(2).toString() + '$';
 
   const existingCounter = document.getElementById('tim_counter');
-  if (storageData.display) {
+  if (storageData.display && !storageData.currentIsDesirable) {
     if (existingCounter) {
       while (existingCounter.firstChild) {
         existingCounter.removeChild(existingCounter.firstChild);
