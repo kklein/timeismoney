@@ -22,6 +22,11 @@ var Utils = (function () {
 
     getMonetaryValue: function(duration, hourlyWage) {
       return Math.round(duration / 60000 * 60) * hourlyWage / 3600;
+    },
+
+    isDesirable: function(url, websites) {
+      const isWebsiteInUrl = (element) => url.includes(element);
+      return !(websites.some(isWebsiteInUrl));
     }
   };
 

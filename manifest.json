@@ -2,10 +2,9 @@
   "manifest_version": 2,
   "name": "Timeismoney",
   "version": "0.1",
-
   "description":
       "Lets you track how much money you spend on certain websites.",
-  "homepage_url": "https://github.com/kkleindev",
+  "homepage_url": "https://github.com/kklein",
   "icons": {
     "48": "icons/ic_attach_money_black_48dp_1x.png"
   },

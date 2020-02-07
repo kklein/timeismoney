@@ -3,28 +3,10 @@
 // started.
 
 // Idle timetout in seconds.
-const IDLE_TIMEOUT = 120;
+const IDLE_TIMEOUT = 6*60;
+const SPINNING_PERIOD = 1000;
 const DEFAULT_WAGE = 10;
-const DEFAULT_WEBSITES = ["www.facebook.com"];
-
-
-function getWeekId(date) {
-    const dateCopy = new Date(date.valueOf());
-    // ISO weeks start on Mondays.
-    const dayNumber = (date.getDay() + 6) % 7;
-    // Set the target to the Thursday of this week so the
-    // target date is in the right year.
-    dateCopy.setDate(dateCopy.getDate() - dayNumber + 3);
-    // ISO 8601: Week 1 iff January 4th in it.
-    const dateJan4 = new Date(dateCopy.getFullYear(), 0, 4);
-    // Number of days between target date and january 4th
-    const dayDiff = (dateCopy - dateJan4) / 86400000;
-    // Calculate week number: Week 1 (january 4th) plus the
-    // number of weeks between target date and january 4th
-    const weekId = dateCopy.getFullYear().toString() +
-        (1 + Math.ceil(dayDiff / 7)).toString();
-    return parseInt(weekId);
-}
+const DEFAULT_WEBSITES = ['facebook.com', 'youtube.com', 'reddit.com'];
 
 function initializeState(storageData) {
   const date = new Date();
@@ -34,78 +16,91 @@ function initializeState(storageData) {
   chrome.storage.local.set({
     currentIsDesirable: true,
     display: true,
+    active: true,
     timeCount:
         storageData.timeCount ? storageData.timeCount : defaultTimeCount,
     wage: storageData.wage ? storageData.wage : DEFAULT_WAGE,
     websites: storageData.websites ?
-        storageData.websites : ["www.facebook.com"]
+        storageData.websites : DEFAULT_WEBSITES
   });
 }
-
-function setState(urlIsDesirable, storageData) {
+function updateDesirability(newUrl, storageData) {
+  if (!storageData.websites || storageData.websites.length == 0) {
+    return
+  }
+  const urlIsDesirable = Utils.isDesirable(newUrl, storageData.websites);
   const soFarIsDesirable = storageData.currentIsDesirable;
-  const timeCount = storageData.timeCount;
-  const startTime = storageData.startTime;
-  const date = new Date();
   if (soFarIsDesirable && !urlIsDesirable) {
-    chrome.storage.local.set(
-        {currentIsDesirable: false, startTime: date.getTime()});
+    chrome.storage.local.set({currentIsDesirable: false});
   } else if (!soFarIsDesirable && urlIsDesirable) {
-    const weekId = Utils.getWeekId(date);
-    const newTimeCount = timeCount;
-    if (!newTimeCount[weekId]) {
-      newTimeCount[weekId] = 0;
+    chrome.storage.local.set({currentIsDesirable: true});
+  }
+}
+
+// This event only provides information about tabids. We need to explicitly
+// query data on the url of the activated tab.
+function tabActivatedListener() {
+  const updateWithTab = (tabs) => {
+    if (!tabs || !tabs[0] || !tabs[0].url) {
+      return;
     }
-    newTimeCount[weekId] += date.getTime() - startTime;
-    chrome.storage.local.set(
-        {currentIsDesirable: true, timeCount: newTimeCount});
-  }
-}
-
-function updateState(tabData, storageData) {
-  function isDesirable(url, websites) {
-    const isWebsiteInUrl = (element) => url.includes(element);
-    return !(websites.some(isWebsiteInUrl));
-  }
-  const urlIsDesirable = isDesirable(tabData[0].url, storageData.websites);
-  setState(urlIsDesirable, storageData);
-}
-
-function finalizeState(storageData) {
-  // We observe that we find ourselves in the same situation as if the user had
-  // switched to a desirable website.
-  setState(true, storageData);
-}
-
-function tabChangeListener() {
-  const updateWithTab = (tabData) => {
-    const updateWithStorage = (storageData) => {
-      updateState(tabData, storageData);
-    }
-    chrome.storage.local.get(updateWithStorage);
-  }
+    const startDesirabilityUpdate = (storageData) => {
+      updateDesirability(tabs[0].url, storageData);
+    };
+    chrome.storage.local.get(startDesirabilityUpdate);
+  };
   chrome.tabs.query({currentWindow: true, active: true}, updateWithTab);
 }
 
-function windowRemovalListener() {
-  chrome.storage.local.get(finalizeState);
+function tabUpdatedListener(tabId, changeInfo, tab) {
+  if (!tab || !tab.url) {
+    return;
+  }
+  const startDesirabilityUpdate = (storageData) => {
+    updateDesirability(tab.url, storageData);
+  };
+  chrome.storage.local.get(startDesirabilityUpdate);
 }
 
 function idleListener(idleState) {
   if (idleState == 'idle' || idleState == 'locked') {
-    chrome.storage.local.get(finalizeState);
+    chrome.storage.local.set({active: false});
   } else {
-    // Returning to activity after idle phase.
-    tabChangeListener();
+    // Returning to activiy after idle phase.
+    chrome.storage.local.set({active: true});
   }
 }
 
 chrome.storage.local.get(initializeState);
-chrome.tabs.onActivated.addListener(tabChangeListener);
-chrome.tabs.onUpdated.addListener(tabChangeListener);
-// In order for this callback to be executed with a single window remaining,
-// the background permission has to be granted. This is currently not supported
-// by firefox.
-//chrome.windows.onRemoved.addListener(windowRemovalListener);
+chrome.tabs.onActivated.addListener(tabActivatedListener);
+chrome.tabs.onUpdated.addListener(tabUpdatedListener);
 chrome.idle.setDetectionInterval(IDLE_TIMEOUT);
 chrome.idle.onStateChanged.addListener(idleListener);
+
+// TODO(kklein): Currently not working
+
+// // React to popup click.
+// function changeDisplayState(storageData) {
+//   chrome.storage.local.set({display: !storageData.display});
+// }
+
+// chrome.runtime.onMessage.addListener((message) => {
+//   chrome.storage.local.get(changeDisplayState);
+// });
+
+function updateCount(storageData) {
+  if (storageData.currentIsDesirable || !storageData.active) {
+    return;
+  }
+  const weekId = Utils.getWeekId(new Date());
+  const timeCount = storageData.timeCount;
+  let wastedTime = timeCount[weekId] ? timeCount[weekId] : 0;
+  wastedTime += SPINNING_PERIOD;
+  const newTimeCount = Object.assign({}, storageData.timeCount);
+  newTimeCount[weekId] = wastedTime;
+  chrome.storage.local.set({timeCount: newTimeCount});
+}
+
+const intervalID =
+    setInterval(() => chrome.storage.local.get(updateCount),
+        SPINNING_PERIOD);
