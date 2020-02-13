@@ -1,41 +1,45 @@
-const SPINNING_PERIOD = 2000;
+const SPINNING_PERIOD = 1000;
 
-function updateCounter(storageData) {
-  if (!storageData.display) {
-    return;
+function removeExistingCounter() {
+  const existingCounter = document.getElementById('tim_counter');
+  if (existingCounter) {
+    existingCounter.parentNode.removeChild(existingCounter);
   }
+}
+
+function getWastedMoney(storageData) {
   const weekId = Utils.getWeekId(new Date());
   const timeCount = storageData.timeCount;
   const wastedSeconds = timeCount[weekId] ? timeCount[weekId] : 0;
-  const wastedMoney =
-      Utils.getMonetaryValue(wastedSeconds, storageData.wage);
+  return Utils.getMonetaryValue(wastedSeconds, storageData.wage);
+}
+
+function getHtmlSpan(wastedMoney) {
   const span = document.createElement('span');
   span.innerHTML = wastedMoney.toFixed(2).toString() + '$';
+  return span;
+}
 
-  const existingCounter = document.getElementById('tim_counter');
-  if (!storageData.currentIsDesirable) {
-    if (existingCounter) {
-      while (existingCounter.firstChild) {
-        existingCounter.removeChild(existingCounter.firstChild);
-      }
-      existingCounter.appendChild(span);
-    } else {
-      const elem = document.createElement('div');
-      elem.setAttribute('id', 'tim_counter');
-      elem.appendChild(span);
-      document.body.appendChild(elem);
-    }
-  } else {
-    if (existingCounter) {
-      existingCounter.parentElement.removeChild(existingCounter);
-    }
+function createHTMLCounterElement(span) {
+  const elem = document.createElement('div');
+  elem.setAttribute('id', 'tim_counter');
+  elem.appendChild(span);
+  document.body.appendChild(elem);
+}
+
+function updateCounter(storageData) {
+  removeExistingCounter();
+  if (!storageData.display || storageData.currentIsDesirable) {
+    return;
   }
+  createHTMLCounterElement(
+      getHtmlSpan(
+          getWastedMoney(storageData)));
 }
 
 // Initial execution.
 chrome.storage.local.get(updateCounter);
 
 // Spinning loop to update count.
-const intervalID =
-    setInterval(() => chrome.storage.local.get(updateCounter),
-        SPINNING_PERIOD);
+setInterval(() => chrome.storage.local.get(updateCounter),
+    SPINNING_PERIOD);

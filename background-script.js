@@ -21,12 +21,12 @@ function initializeState(storageData) {
         storageData.timeCount ? storageData.timeCount : defaultTimeCount,
     wage: storageData.wage ? storageData.wage : DEFAULT_WAGE,
     websites: storageData.websites ?
-        storageData.websites : DEFAULT_WEBSITES
+        storageData.websites : DEFAULT_WEBSITES,
   });
 }
 function updateDesirability(newUrl, storageData) {
   if (!storageData.websites || storageData.websites.length == 0) {
-    return
+    return;
   }
   const urlIsDesirable = Utils.isDesirable(newUrl, storageData.websites);
   const soFarIsDesirable = storageData.currentIsDesirable;
@@ -77,17 +77,6 @@ chrome.tabs.onUpdated.addListener(tabUpdatedListener);
 chrome.idle.setDetectionInterval(IDLE_TIMEOUT);
 chrome.idle.onStateChanged.addListener(idleListener);
 
-// TODO(kklein): Currently not working
-
-// // React to popup click.
-// function changeDisplayState(storageData) {
-//   chrome.storage.local.set({display: !storageData.display});
-// }
-
-// chrome.runtime.onMessage.addListener((message) => {
-//   chrome.storage.local.get(changeDisplayState);
-// });
-
 function updateCount(storageData) {
   if (storageData.currentIsDesirable || !storageData.active) {
     return;
@@ -101,6 +90,5 @@ function updateCount(storageData) {
   chrome.storage.local.set({timeCount: newTimeCount});
 }
 
-const intervalID =
-    setInterval(() => chrome.storage.local.get(updateCount),
-        SPINNING_PERIOD);
+setInterval(() => chrome.storage.local.get(updateCount),
+    SPINNING_PERIOD);
