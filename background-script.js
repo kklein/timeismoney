@@ -3,7 +3,7 @@
 // started.
 
 // Idle timetout in seconds.
-const IDLE_TIMEOUT = 6*60;
+const DEFAULT_TIMEOUT = 6*60;
 const SPINNING_PERIOD = 1000;
 const DEFAULT_WAGE = 10;
 const DEFAULT_WEBSITES = ['facebook.com', 'youtube.com', 'reddit.com'];
@@ -11,6 +11,7 @@ const DEFAULT_WEBSITES = ['facebook.com', 'youtube.com', 'reddit.com'];
 function initializeState(storageData) {
   const date = new Date();
   const weekId = Utils.getWeekId(date);
+  const timeout = storageData.timeout ? storageData.timeout : DEFAULT_TIMEOUT;
   const defaultTimeCount = {};
   defaultTimeCount[weekId] = 0;
   chrome.storage.local.set({
@@ -20,10 +21,13 @@ function initializeState(storageData) {
     timeCount:
         storageData.timeCount ? storageData.timeCount : defaultTimeCount,
     wage: storageData.wage ? storageData.wage : DEFAULT_WAGE,
+    timeout: timeout,
     websites: storageData.websites ?
         storageData.websites : DEFAULT_WEBSITES,
   });
+  chrome.idle.setDetectionInterval(timeout);
 }
+
 function updateDesirability(newUrl, storageData) {
   if (!storageData.websites || storageData.websites.length == 0) {
     return;
@@ -74,7 +78,6 @@ function idleListener(idleState) {
 chrome.storage.local.get(initializeState);
 chrome.tabs.onActivated.addListener(tabActivatedListener);
 chrome.tabs.onUpdated.addListener(tabUpdatedListener);
-chrome.idle.setDetectionInterval(IDLE_TIMEOUT);
 chrome.idle.onStateChanged.addListener(idleListener);
 
 function updateCount(storageData) {
